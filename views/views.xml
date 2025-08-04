@@ -1,0 +1,77 @@
+<odoo>
+    <data>
+        <!-- Herencia de la vista formulario -->
+        <record id="view_account_payment_form_inherit_approval" model="ir.ui.view">
+            <field name="name">account.payment.form.inherit.approval</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <!-- 1. Botones en estado 'draft': reemplazamos action_post -->
+                <xpath expr="//button[@name='action_post']" position="before">
+                    <button
+                        name="action_submit_for_approval"
+                        type="object"
+                        string="Enviar a Aprobación"
+                        invisible = "state != 'draft'"
+                        class="btn-primary"
+                    />
+                </xpath>
+                  <xpath expr="//button[@name='action_post']" position="attributes">
+                    <attribute name="invisible">state not in ["approved"]</attribute>
+                  </xpath>
+                <!-- 2. Ocultar el botón 'Confirmar' en draft 
+                <xpath expr="//button[@name='action_post']" position="attributes">
+                    <attribute name="states">in_process</attribute>
+                </xpath>
+                -->
+
+                <!-- 3. Botones en estado 'pending_approval' -->
+                <xpath expr="//button[@name='action_post']" position="after">
+                    <button
+                        name="action_approve"
+                        type="object"
+                        string="Aprobar"
+                        invisible="state != 'pending_approval'"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_reject"
+                        type="object"
+                        string="Rechazar"
+                        invisible="state != 'pending_approval'"
+                        class="btn-secondary"
+                    />
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- 2. HERENCIA DE LA VISTA DE BÚSQUEDA: Añadir filtro para 'pending_approval' -->
+        <record id="view_account_payment_filter_inherit_approval" model="ir.ui.view">
+            <field name="name">account.payment.filter.inherit.approval</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_search"/>
+            <field name="arch" type="xml">
+                <!-- Insertar el filtro entre 'Draft' y 'In Process' -->
+                <xpath expr="//filter[@name='state_draft']" position="after">
+                    <filter
+                        string="Por Aprobar"
+                        name="state_pending_approval"
+                        domain="[('state', '=', 'pending_approval')]"
+                        help="Pagos enviados para aprobación"
+                    />
+                    <filter
+                        string="Aprobado"
+                        name="state_pending_approval"
+                        domain="[('state', '=', 'approved')]"
+                        help="Pagos aprobados"
+                    />
+                </xpath>
+
+                <!-- Opcional: Asegurarse de que el group_by incluya el nuevo estado (ya está en context group_by) -->
+                <!-- El filtro <filter name="state" context="{'group_by': 'state'}"/> ya existe, no necesita cambios -->
+            </field>
+        </record>
+
+    </data>
+</odoo>
