@@ -42,7 +42,12 @@
                         class="btn-secondary"
                     />
                 </xpath>
-
+                <xpath expr="//group[@name='group2']" position="inside">
+                    <field name="installment_number"/>
+                </xpath>
+                <xpath expr="//group[@name='group2']" position="after">
+                    <field name="payment_details"/>
+                </xpath>
             </field>
         </record>
 
@@ -67,9 +72,26 @@
                         help="Pagos aprobados"
                     />
                 </xpath>
-
+                
                 <!-- Opcional: Asegurarse de que el group_by incluya el nuevo estado (ya está en context group_by) -->
                 <!-- El filtro <filter name="state" context="{'group_by': 'state'}"/> ya existe, no necesita cambios -->
+            </field>
+        </record>
+
+        <record id="view_account_payment_register_form_inherit_approval" model="ir.ui.view">
+            <field name="name">account.payment.form.inherit.approval</field>
+            <field name="model">account.payment.register</field>
+            <field name="inherit_id" ref="account.view_account_payment_register_form"/>
+            <field name="arch" type="xml">
+                <!-- 1. Botones en estado 'draft': reemplazamos action_post -->
+                <xpath expr="//field[@name='partner_bank_id']" position="after">
+                    <field name="installment_number"/>
+                </xpath>
+                <xpath expr="//group[@name='group2']" position="after">
+                    <group>
+                        <field name="payment_details"/>
+                    </group>
+                </xpath>
             </field>
         </record>
 

@@ -21,6 +21,9 @@ class AccountPayment(models.Model):
         help="Líneas de factura que deben reconciliarse al confirmar el pago.",
         copy=False
     )
+    installment_number = fields.Integer('Cuota Nro')
+    payment_details = fields.Text('Detalle de pago')
+    
 
     def action_post(self):
         ''' draft -> posted '''
