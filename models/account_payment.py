@@ -1,7 +1,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+import logging
 
-
+_logger = logging.getLogger(__name__)
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
@@ -26,8 +27,9 @@ class AccountPayment(models.Model):
     
 
     def action_post(self):
-        ''' draft -> posted '''
-        # Do not allow posting if the account is required but not trusted
+        ''' Sobrescribe el método para agregar reconciliación diferida después de publicar. '''
+        _logger.info("Posting payment(s)...")
+        
         for payment in self:
             if (
                 payment.require_partner_bank_account
@@ -40,12 +42,9 @@ class AccountPayment(models.Model):
                     method_name=self.payment_method_line_id.name,
                     partner=payment.partner_id.display_name,
                 ))
-        self.filtered(lambda pay: pay.outstanding_account_id.account_type == 'asset_cash').state = 'paid'
-        # Avoid going back one state when clicking on the confirm action in the payment list view and having paid expenses selected
-        # We need to set values to each payment to avoid recomputation later
-        self.filtered(lambda pay: pay.state in {False, 'approved', 'in_process'}).state = 'in_process'
-
-        # === Reconciliación diferida ===
+            
+        result = super().action_post()
+    
         domain = [
             ('parent_state', '=', 'posted'),
             ('account_type', 'in', self.env['account.payment']._get_valid_payment_account_types()),
@@ -71,6 +70,8 @@ class AccountPayment(models.Model):
             # Marcar que ya se reconcilió
             lines.move_id.matched_payment_ids += payment
             payment.to_reconcile_move_line_ids = [(5, 0, 0)]  # Vaciar relación
+    
+        return result  # Devolvemos el resultado del super() para mantener la compatibilidad
         
     def action_submit_for_approval(self):
         """ Cambia el estado a 'pending_approval' """

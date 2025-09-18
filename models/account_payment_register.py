@@ -1,6 +1,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class AccountPayment(models.TransientModel):
     _inherit = 'account.payment.register'
@@ -47,4 +49,4 @@ class AccountPayment(models.TransientModel):
             else:
                 # Incluye facturas de proveedor: enviar a aprobación
                 payments |= payment
-        payments.action_submit_for_approval()
+                payments.action_submit_for_approval()
