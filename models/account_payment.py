@@ -42,6 +42,7 @@ class AccountPayment(models.Model):
                     method_name=self.payment_method_line_id.name,
                     partner=payment.partner_id.display_name,
                 ))
+            payment.state = 'draft'
             
         result = super().action_post()
     
