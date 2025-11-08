@@ -73,6 +73,12 @@ class AccountPayment(models.Model):
             payment.to_reconcile_move_line_ids = [(5, 0, 0)]  # Vaciar relación
     
         return result  # Devolvemos el resultado del super() para mantener la compatibilidad
+    
+
+    def action_draft(self):
+        self.move_id.button_cancel()
+        self.state = 'draft'
+        self.move_id.button_draft()
         
     def action_submit_for_approval(self):
         """ Cambia el estado a 'pending_approval' """
