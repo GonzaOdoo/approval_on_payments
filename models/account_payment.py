@@ -76,9 +76,11 @@ class AccountPayment(models.Model):
     
 
     def action_draft(self):
-        self.move_id.button_cancel()
-        self.state = 'draft'
-        self.move_id.button_draft()
+        for payment in self:
+            if payment.state != 'canceled':
+                payment.move_id.button_cancel()
+            payment.state = 'draft'
+            payment.move_id.button_draft()
         
     def action_submit_for_approval(self):
         """ Cambia el estado a 'pending_approval' """
@@ -97,4 +99,5 @@ class AccountPayment(models.Model):
         for payment in self:
             if payment.state != 'pending_approval':
                 raise UserError(_("Solo se puede rechazar un pago pendiente de aprobación."))
+            payment.action_cancel()
             payment.state = 'rejected'
