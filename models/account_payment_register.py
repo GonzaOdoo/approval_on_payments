@@ -43,7 +43,7 @@ class AccountPayment(models.TransientModel):
                 payments |= payment
                 continue
             # Verificar que todas las facturas sean de cliente (out_invoice, out_refund, etc.)
-            if all(inv.move_type in ('out_invoice', 'out_refund', 'out_receipt') for inv in invoices):
+            if all(inv.move_type in ('out_invoice', 'out_refund', 'out_receipt') for inv in invoices) or payment.journal_id.skip_approval:
                 # Son facturas de cliente: publicar directamente
                 payment.action_post()
             else:
